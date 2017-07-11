@@ -309,50 +309,6 @@ T&& CheckNotNull(const char* file, int line, const char* exprtext, T&& t) {
 }  // namespace tensorflow
 
 // following codes are added by jfcherng
-
-#define JFCHERNG_VERSION "v20170711-162200-A"
-
-#include <string>
-
-#if defined(__GNUC__) || defined(__clang__)
-#define JFCHERNG_GETENV_INT(env_var) \
-  (::std::stoi(::std::string{ getenv(env_var) ?: "0" } ))
-#else
-#define JFCHERNG_GETENV_INT(env_var) \
-  (::std::stoi(::std::string{ getenv(env_var) ? getenv(env_var) : "0" } ))
-#endif
-
-#if defined(__GNUC__) || defined(__clang__)
-#define JFCHERNG_GETENV_STR(env_var) \
-  (::std::string{ getenv(env_var) ?: "" })
-#else
-#define JFCHERNG_GETENV_STR(env_var) \
-  (::std::string{ getenv(env_var) ? getenv(env_var) : "" })
-#endif
-
-// The codes for foreground and background colours are:
-//          foreground background
-// black        30         40
-// red          31         41
-// green        32         42
-// yellow       33         43
-// blue         34         44
-// magenta      35         45
-// cyan         36         46
-// white        37         47
-//
-// Additionally, you can use these:
-// reset             0  (everything back to normal)
-// bold/bright       1  (often a brighter shade of the same colour)
-// underline         4
-// inverse           7  (swap foreground and background colours)
-// bold/bright off  21
-// underline off    24
-// inverse off      27
-#define JFCHERNG_VLOG(lvl) \
-  if (TF_PREDICT_FALSE(JFCHERNG_GETENV_INT("JFCHERNG_DEBUG"))) \
-  VLOG(lvl) << "\033[1;33m" \
-            << "jfcherng (" << JFCHERNG_VERSION << "): " \
-            << "\033[0m"
+#include "tensorflow/jfcherng/logging.h"
 
 #endif  // TENSORFLOW_PLATFORM_DEFAULT_LOGGING_H_
