@@ -1,0 +1,38 @@
+#ifndef TENSORFLOW_JFCHERNG_LOGGING_H_
+#define TENSORFLOW_JFCHERNG_LOGGING_H_
+
+#include <string>
+
+// The codes for foreground and background colours are:
+//          foreground background
+// black        30         40
+// red          31         41
+// green        32         42
+// yellow       33         43
+// blue         34         44
+// magenta      35         45
+// cyan         36         46
+// white        37         47
+//
+// Additionally, you can use these:
+// reset             0  (everything back to normal)
+// bold/bright       1  (often a brighter shade of the same colour)
+// underline         4
+// inverse           7  (swap foreground and background colours)
+// bold/bright off  21
+// underline off    24
+// inverse off      27
+#define JFCHERNG_VLOG(lvl) \
+    if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv_int("JFCHERNG_DEBUG"))) \
+        VLOG(lvl) << "\033[1;33m" << "jfcherng: " << "\033[0m"
+
+namespace tensorflow {
+namespace jfcherng {
+
+extern int getenv_int(const std::string &env_name);
+extern std::string getenv_str(const std::string &env_name);
+
+} // end namespace jfcherng
+} // end namespace tensorflow
+
+#endif
