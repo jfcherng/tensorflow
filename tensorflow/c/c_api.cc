@@ -600,7 +600,7 @@ void TF_Run(TF_DeprecatedSession* s, const TF_Buffer* run_options,
             TF_Buffer* run_metadata, TF_Status* status) {
 
   // print the build version when program starts
-  std::cout << "\033[30;43m"
+  std::cout << "\033[1;40;45m"
             << "Build version: " << JFCHERNG_VERSION
             << "\033[0m"
             << std::endl;
