@@ -438,6 +438,9 @@ Status DirectSession::Run(const RunOptions& run_options,
                           const std::vector<string>& target_nodes,
                           std::vector<Tensor>* outputs,
                           RunMetadata* run_metadata) {
+
+  JFCHERNG_VLOG(0) << "DirectSession::Run()";
+
   TF_RETURN_IF_ERROR(CheckNotClosed());
   direct_session_runs->GetCell()->IncrementBy(1);
   {
@@ -1267,6 +1270,10 @@ Status DirectSession::CreateGraphs(
 
   std::unique_ptr<SimpleGraphExecutionState> temp_exec_state_holder;
   SimpleGraphExecutionState* execution_state = nullptr;
+
+  JFCHERNG_VLOG(0) << "place_pruned_graph() = "
+                   << options_.config.graph_options().place_pruned_graph();
+
   if (options_.config.graph_options().place_pruned_graph()) {
     // Because we are placing pruned graphs, we need to create a
     // new SimpleGraphExecutionState for every new unseen graph,
