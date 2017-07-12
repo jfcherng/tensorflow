@@ -1,6 +1,8 @@
 #ifndef TENSORFLOW_JFCHERNG_LOGGING_H_
 #define TENSORFLOW_JFCHERNG_LOGGING_H_
 
+#include <cstdlib>
+#include <sstream>
 #include <string>
 
 // The codes for foreground and background colours are:
@@ -23,14 +25,34 @@
 // underline off    24
 // inverse off      27
 #define JFCHERNG_VLOG(lvl) \
-    if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv_int("JFCHERNG_DEBUG"))) \
+    if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv<int>("JFCHERNG_DEBUG"))) \
         VLOG(lvl) << "\033[1;33m" << "jfcherng: " << "\033[0m"
 
 namespace tensorflow {
 namespace jfcherng {
 
-extern int getenv_int(const std::string &env_name);
-extern std::string getenv_str(const std::string &env_name);
+/**
+ * Get the value of an environment variable.
+ * @param  envName [the name of the environment variable]
+ * @return         [the value of the environment variable]
+ */
+template <typename T>
+T getenv(const std::string &envName) {
+    const char * const envVal = std::getenv(envName.c_str());
+
+    // when cannot find `envName`, we return a default constructed `T`
+    if (!envVal) return T{};
+
+    // convert `envVal` into `T` type
+    T result;
+    std::stringstream ss{envVal};
+    ss >> result;
+
+    return result;
+}
+
+template <>
+std::string getenv<std::string>(const std::string &envName);
 
 } // end namespace jfcherng
 } // end namespace tensorflow
