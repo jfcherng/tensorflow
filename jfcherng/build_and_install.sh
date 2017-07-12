@@ -7,6 +7,7 @@
 # some configurations
 TENSORFLOW_BUILD_DIR="/tmp/tensorflow_pkg"
 PIP_EXECUTABLE="pip3"
+PIP_PACKAGE_NAME="tensorflow"
 
 # some constants
 CURRENT_DIR="$(pwd)"
@@ -34,16 +35,13 @@ rm -rf ${TENSORFLOW_BUILD_DIR:?}/*
 bazel build --config=opt //tensorflow/tools/pip_package:build_pip_package || exit
 bazel-bin/tensorflow/tools/pip_package/build_pip_package ${TENSORFLOW_BUILD_DIR} || exit
 
-# check whether TensorFlow had been installed or not
-if ( ${PIP_EXECUTABLE} list --format=legacy | grep -i tensorflow >/dev/null ); then
-    # TensorFlow is installed, we do not have to reinstall dependencies
-    PIP_INSTALL_FLAGS=( --upgrade --force-reinstall --no-deps )
-else
-    PIP_INSTALL_FLAGS=( --upgrade --force-reinstall )
+# remove previously installed TensorFlow
+if ( ${PIP_EXECUTABLE} list --format=legacy | grep ${PIP_PACKAGE_NAME} >/dev/null ); then
+    sudo -H ${PIP_EXECUTABLE} uninstall -y ${PIP_PACKAGE_NAME}
 fi
 
 # install
-sudo -H ${PIP_EXECUTABLE} install "${PIP_INSTALL_FLAGS[@]}" ${TENSORFLOW_BUILD_DIR}/*.whl || exit
+sudo -H ${PIP_EXECUTABLE} install ${TENSORFLOW_BUILD_DIR}/*.whl || exit
 
 # go back to current dir
 cd "${CURRENT_DIR}"
