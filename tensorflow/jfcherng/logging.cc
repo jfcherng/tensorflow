@@ -1,18 +1,13 @@
 #include <cstdlib>
-#include <string>
 #include "tensorflow/jfcherng/logging.h"
 
 namespace tensorflow {
 namespace jfcherng {
 
-int getenv_int(const std::string &env_name) {
-    const char *const env_val = std::getenv(env_name.c_str());
-    return std::stoi(std::string{ env_val ? env_val : "0" });
-}
-
-std::string getenv_str(const std::string &env_name) {
-    const char *const env_val = std::getenv(env_name.c_str());
-    return std::string{ env_val ? env_val : "" };
+template <>
+std::string getenv<std::string>(const std::string &envName) {
+    const char *const envVal = std::getenv(envName.c_str());
+    return envVal ? envVal : "";
 }
 
 } // end namespace jfcherng
