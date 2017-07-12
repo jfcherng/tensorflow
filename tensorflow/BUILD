@@ -392,6 +392,7 @@ filegroup(
         "//third_party/hadoop:all_files",
         "//third_party/sycl:all_files",
         "//third_party/sycl/sycl:all_files",
+        "//tensorflow/jfcherng:all_files",
     ],
     visibility = [":__subpackages__"],
 )

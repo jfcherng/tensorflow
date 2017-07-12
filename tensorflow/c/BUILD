@@ -45,7 +45,10 @@ tf_cuda_library(
 tf_cuda_library(
     name = "c_api",
     srcs = ["c_api.cc"],
-    hdrs = ["c_api.h"],
+    hdrs = [
+        "c_api.h",
+        "//tensorflow/jfcherng:version",
+    ],
     copts = tf_copts(),
     visibility = ["//visibility:public"],
     deps = select({
