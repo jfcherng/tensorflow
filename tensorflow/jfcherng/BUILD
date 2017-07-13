@@ -1,5 +1,5 @@
 # Description:
-# C API for TensorFlow, for use by client language bindings.
+# jfcherng's lib for TensorFlow.
 
 licenses(["notice"])  # Apache 2.0
 
