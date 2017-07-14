@@ -41,7 +41,7 @@ namespace jfcherng {
  */
 template <typename T>
 T getenv(const std::string &envName) {
-    const char * const envVal = std::getenv(envName.c_str());
+    const char *const envVal = std::getenv(envName.c_str());
 
     // when cannot find `envName`, we return a default constructed `T`
     if (!envVal) return T{};
