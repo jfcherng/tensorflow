@@ -28,7 +28,7 @@
 #define JFCHERNG_VLOG(lvl, type) \
     if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv<int>("JFCHERNG_DEBUG"))) \
         VLOG(lvl) << "\033[1;33m" << "jfcherng: " \
-                  << (type == "" ? "" : "\033[1;36m" type ": ") \
+                  << (type == ::std::string{""} ? "" : "\033[1;36m" type ": ") \
                   << "\033[0m"
 
 namespace tensorflow {
