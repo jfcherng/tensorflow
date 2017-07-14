@@ -375,6 +375,9 @@ Status SimpleGraphExecutionState::OptimizeGraph(
 
 Status SimpleGraphExecutionState::BuildGraph(
     const BuildGraphOptions& options, std::unique_ptr<SimpleClientGraph>* out) {
+
+  JFCHERNG_VLOG(0, "Func") << "SimpleGraphExecutionState::BuildGraph()";
+
   VLOG(1) << "BuildGraph";
   if (!graph_) {
     // It is only valid to call this method directly when the original graph

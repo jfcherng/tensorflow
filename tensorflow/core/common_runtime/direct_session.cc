@@ -1265,6 +1265,9 @@ Status DirectSession::CreateGraphs(
     std::unique_ptr<FunctionLibraryDefinition>* flib_def,
     RunStateArgs* run_state_args, DataTypeVector* input_types,
     DataTypeVector* output_types) {
+
+  JFCHERNG_VLOG(0, "Func") << "DirectSession::CreateGraphs()";
+
   mutex_lock l(graph_def_lock_);
   std::unique_ptr<SimpleClientGraph> client_graph;
 
@@ -1292,6 +1295,7 @@ Status DirectSession::CreateGraphs(
   } else {
     execution_state = execution_state_.get();
     TF_RETURN_IF_ERROR(
+        // ???
         execution_state->BuildGraph(subgraph_options, &client_graph));
   }
 
