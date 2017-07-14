@@ -267,3 +267,16 @@ filegroup(
     ),
     visibility = ["//tensorflow:__subpackages__"],
 )
+
+# jfcherng
+filegroup(
+    name = "all_hdrs",
+    srcs = glob(
+        ["**/*.h"],
+        exclude = [
+            "**/METADATA",
+            "**/OWNERS",
+        ],
+    ),
+    visibility = ["//tensorflow:__subpackages__"],
+)
