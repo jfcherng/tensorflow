@@ -26,10 +26,10 @@
 // inverse off      27
 
 #define JFCHERNG_VLOG(lvl, type) \
-    if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv<int>("JFCHERNG_DEBUG"))) \
-        VLOG(lvl) << "\033[1;33m" << "jfcherng: " \
-                  << (type == ::std::string{""} ? "" : "\033[1;36m" type ": ") \
-                  << "\033[0m"
+  if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv<int>("JFCHERNG_DEBUG"))) \
+    VLOG(lvl) << "\033[1;33m" << "jfcherng: " \
+              << (type == ::std::string{""} ? "" : "\033[1;36m" type ": ") \
+              << "\033[0m"
 
 namespace tensorflow {
 namespace jfcherng {
@@ -41,17 +41,17 @@ namespace jfcherng {
  */
 template <typename T>
 T getenv(const std::string &envName) {
-    const char *const envVal = std::getenv(envName.c_str());
+  const char *const envVal = std::getenv(envName.c_str());
 
-    // when cannot find `envName`, we return a default constructed `T`
-    if (!envVal) return T{};
+  // when cannot find `envName`, we return a default constructed `T`
+  if (!envVal) return T{};
 
-    // convert `envVal` into `T` type
-    T result;
-    std::stringstream ss{envVal};
-    ss >> result;
+  // convert `envVal` into `T` type
+  T result;
+  std::stringstream ss{envVal};
+  ss >> result;
 
-    return result;
+  return result;
 }
 
 template <>
