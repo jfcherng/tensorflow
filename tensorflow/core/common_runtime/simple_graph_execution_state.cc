@@ -47,6 +47,9 @@ limitations under the License.
 #include "tensorflow/core/grappler/optimizers/meta_optimizer.h"
 #endif  // IS_MOBILE_PLATFORM
 
+// jfcherng debug
+#include "tensorflow/compiler/tf2xla/dump_graph.h"
+
 namespace tensorflow {
 
 SimpleGraphExecutionState::SimpleGraphExecutionState(
@@ -394,6 +397,10 @@ Status SimpleGraphExecutionState::BuildGraph(
     CopyGraph(*graph_, ng.get());
   }
 
+  // note that `graph_` is the original full graph and `ng` is the new graph
+  JFCHERNG_VLOG(0, "Dump graph")
+    << dump_graph::DumpGraphToFile("tf_graph_dump_0_init", *graph_);
+
   subgraph::RewriteGraphMetadata rewrite_metadata;
   if (session_options_ == nullptr ||
       !session_options_->config.graph_options().place_pruned_graph()) {
@@ -403,6 +410,10 @@ Status SimpleGraphExecutionState::BuildGraph(
         ng.get(), options.feed_endpoints, options.fetch_endpoints,
         options.target_nodes, device_set_->client_device()->attributes(),
         options.use_function_convention, &rewrite_metadata));
+
+    JFCHERNG_VLOG(0, "Dump graph")
+      << dump_graph::DumpGraphToFile("tf_graph_dump_1_insert_fetch_feed", *ng);
+
   } else {
     // This SimpleGraphExecutionState represents a graph that was
     // pruned when this was constructed, so we copy the metadata from
@@ -439,9 +450,15 @@ Status SimpleGraphExecutionState::BuildGraph(
                             rewrite_metadata.fetch_types));
   CopyGraph(*ng, &dense_copy->graph);
 
+  JFCHERNG_VLOG(0, "Dump graph")
+    << dump_graph::DumpGraphToFile("tf_graph_dump_2_built_graph", *ng);
+
   // TODO(vrv): We should check invariants of the graph here.
 
   *out = std::move(dense_copy);
+
+  JFCHERNG_VLOG(0, "Func Exit") << "SimpleGraphExecutionState::BuildGraph()";
+
   return Status::OK();
 }
 

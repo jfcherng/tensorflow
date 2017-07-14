@@ -1690,6 +1690,7 @@ tf_cuda_library(
         "common_runtime/visitable_allocator.h",
         "graph/gradients.h",
         "graph/quantize_training.h",
+        "//tensorflow/compiler/tf2xla:all_hdrs", # jfcherng
     ],
     copts = tf_copts(),
     deps = [
