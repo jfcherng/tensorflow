@@ -439,7 +439,7 @@ Status DirectSession::Run(const RunOptions& run_options,
                           std::vector<Tensor>* outputs,
                           RunMetadata* run_metadata) {
 
-  JFCHERNG_VLOG(0) << "DirectSession::Run()";
+  JFCHERNG_VLOG(0, "Func") << "DirectSession::Run()";
 
   TF_RETURN_IF_ERROR(CheckNotClosed());
   direct_session_runs->GetCell()->IncrementBy(1);
@@ -1271,8 +1271,10 @@ Status DirectSession::CreateGraphs(
   std::unique_ptr<SimpleGraphExecutionState> temp_exec_state_holder;
   SimpleGraphExecutionState* execution_state = nullptr;
 
-  JFCHERNG_VLOG(0) << "place_pruned_graph() = "
-                   << options_.config.graph_options().place_pruned_graph();
+  // `place_pruned_graph()` gives 0 usually
+  JFCHERNG_VLOG(0, "Val")
+    << "place_pruned_graph() = "
+    << options_.config.graph_options().place_pruned_graph();
 
   if (options_.config.graph_options().place_pruned_graph()) {
     // Because we are placing pruned graphs, we need to create a
@@ -1329,6 +1331,10 @@ Status DirectSession::CreateGraphs(
   }
 
   stateful_placements_ = execution_state->GetStatefulPlacements();
+
+  JFCHERNG_VLOG(0, "Val")
+    << "run_state_args->is_partial_run = "
+    << run_state_args->is_partial_run;
 
   // Remember the graph in run state if this is a partial run.
   if (run_state_args->is_partial_run) {

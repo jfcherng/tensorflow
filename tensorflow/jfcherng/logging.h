@@ -24,9 +24,12 @@
 // bold/bright off  21
 // underline off    24
 // inverse off      27
-#define JFCHERNG_VLOG(lvl) \
+
+#define JFCHERNG_VLOG(lvl, type) \
     if (TF_PREDICT_FALSE(::tensorflow::jfcherng::getenv<int>("JFCHERNG_DEBUG"))) \
-        VLOG(lvl) << "\033[1;33m" << "jfcherng: " << "\033[0m"
+        VLOG(lvl) << "\033[1;33m" << "jfcherng: " \
+                  << (type == "" ? "" : "\033[1;36m" type ": ") \
+                  << "\033[0m"
 
 namespace tensorflow {
 namespace jfcherng {
