@@ -689,6 +689,8 @@ Status DirectSession::Run(const RunOptions& run_options,
     }
   }
 
+  JFCHERNG_VLOG(0, "Func Exit") << "DirectSession::Run()";
+
   return Status::OK();
 }
 
