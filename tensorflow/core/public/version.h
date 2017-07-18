@@ -25,6 +25,7 @@ limitations under the License.
 // TF_VERSION_SUFFIX is non-empty for pre-releases (e.g. "-alpha", "-alpha.1",
 // "-beta", "-rc", "-rc.1")
 #define TF_VERSION_SUFFIX ""
+#define TF_VERSION_SUFFIX_CUSTOMIZED "-jfcherng-2017/07/18-16:30"
 
 #define TF_STR_HELPER(x) #x
 #define TF_STR(x) TF_STR_HELPER(x)
@@ -32,7 +33,7 @@ limitations under the License.
 // e.g. "0.5.0" or "0.6.0-alpha".
 #define TF_VERSION_STRING                                            \
   (TF_STR(TF_MAJOR_VERSION) "." TF_STR(TF_MINOR_VERSION) "." TF_STR( \
-      TF_PATCH_VERSION) TF_VERSION_SUFFIX)
+      TF_PATCH_VERSION) TF_VERSION_SUFFIX TF_VERSION_SUFFIX_CUSTOMIZED)
 
 // TODO(josh11b): Public API functions for exporting the above.
 

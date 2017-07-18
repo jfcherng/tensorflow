@@ -54,7 +54,6 @@ limitations under the License.
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/public/version.h"
-#include "tensorflow/jfcherng/version.h"
 
 // The implementation below is at the top level instead of the
 // brain namespace because we are defining 'extern "C"' functions.
@@ -598,13 +597,6 @@ void TF_Run(TF_DeprecatedSession* s, const TF_Buffer* run_options,
             // Target nodes
             const char** c_target_oper_names, int ntargets,
             TF_Buffer* run_metadata, TF_Status* status) {
-
-  // print the build version when program starts
-  std::cout << "\033[1;40;45m"
-            << "Build version: " << JFCHERNG_VERSION
-            << "\033[0m"
-            << std::endl;
-
   TF_Run_Setup(noutputs, c_outputs, status);
   std::vector<std::pair<tensorflow::string, Tensor>> input_pairs(ninputs);
   if (!TF_Run_Inputs(c_inputs, &input_pairs, status)) return;
