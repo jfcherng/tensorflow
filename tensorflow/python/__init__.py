@@ -32,7 +32,7 @@ import traceback
 # TODO(drpng): write up instructions for editing this file in a doc and point to
 # the doc instead.
 # If you want to edit this file to expose modules in public tensorflow API, you
-# need to follow these steps:
+# need to follow these steps:T
 # 1. Consult with tensorflow team and get approval for adding a new API to the
 #    public interface.
 # 2. Document the module in the gen_docs_combined.py.
@@ -270,3 +270,12 @@ _exported_dunders = set([
 # Expose symbols minus dunders, unless they are whitelisted above.
 # This is necessary to export our dunders.
 __all__ = [s for s in dir() if s in _exported_dunders or not s.startswith('_')]
+
+# jfcherng: only execute the following when being imported as a module
+if __name__ != '__main__':
+    # show the version string
+    print(
+        "\033[1;40;45m"
+        "Build version: " + VERSION +
+        "\033[0m"
+    )
