@@ -18,7 +18,7 @@ cc_library(
 # Google-internal targets.
 
 filegroup(
-    name = "hdrs_files",
+    name = "hdr_files",
     srcs = glob(
         ["**/*.h"],
         exclude = [],
@@ -27,7 +27,7 @@ filegroup(
 )
 
 filegroup(
-    name = "srcs_files",
+    name = "src_files",
     srcs = glob(
         ["**/*.cc"],
         exclude = [],

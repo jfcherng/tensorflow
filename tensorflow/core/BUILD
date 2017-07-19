@@ -225,7 +225,7 @@ cc_library(
         "platform/platform.h",
         "platform/protobuf.h",
         "platform/types.h",
-        "//tensorflow/jfcherng:hdrs_files",
+        "//tensorflow/jfcherng:hdr_files",
     ] + glob(tf_additional_proto_hdrs()) + glob(tf_env_time_hdrs()),
     copts = tf_copts(),
     deps = tf_lib_proto_parsing_deps() + [
@@ -303,7 +303,7 @@ cc_library(
         "platform/thread_annotations.h",
         "platform/types.h",
         "platform/windows/cpu_info.h",
-        "//tensorflow/jfcherng:hdrs_files",
+        "//tensorflow/jfcherng:hdr_files",
     ],
     visibility = ["//visibility:public"],
     deps = [
