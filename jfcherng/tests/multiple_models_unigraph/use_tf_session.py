@@ -10,7 +10,7 @@ with tf.name_scope('Model_B'):
     q = tf.constant(3, name="q")
     r = tf.multiply(p, q, name="r.mul")
 
-M = tf.group(c, r, name='M.grp')
-
 with tf.Session() as sess:
-    sess.run(M)
+    result = sess.run([c, r])
+
+print(result)
