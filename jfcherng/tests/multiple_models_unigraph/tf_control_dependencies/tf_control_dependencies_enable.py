@@ -1,5 +1,7 @@
 import tensorflow as tf
 
+# experiment results:
+#
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 0 step -1 _SOURCE = NoOp[]() is dead: 0
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 2 step -1 x = Const[dtype=DT_FLOAT, value=Tensor<type: float shape: [2,1] values: [3][5]>, _device="/job:localhost/replica:0/task:0/cpu:0"]() is dead: 0
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 3 step -1 W = Const[dtype=DT_FLOAT, value=Tensor<type: float shape: [2] values: 1 2>, _device="/job:localhost/replica:0/task:0/cpu:0"]() is dead: 0
@@ -10,6 +12,7 @@ import tensorflow as tf
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 0 step 1 _SOURCE = NoOp[]() is dead: 0
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 3 step 1 node_add/_0__cf__0 = Const[dtype=DT_FLOAT, value=Tensor<type: float shape: [2,2] values: [10 13][12]...>, _device="/job:localhost/replica:0/task:0/cpu:0"]() is dead: 0
 # tensorflow/core/common_runtime/executor.cc:1557] Process node: 2 step 1 _retval_node_add_0_0 = _Retval[T=DT_FLOAT, index=0, _device="/job:localhost/replica:0/task:0/cpu:0"](node_add) is dead: 0
+#
 # execution order: x -> W -> node_mul -> B -> node_add
 
 W = tf.constant([1.0, 2.0], name='W')
