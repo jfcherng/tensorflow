@@ -1413,6 +1413,9 @@ void ExecutorImpl::InitializePending(const Graph* graph,
 }
 
 void ExecutorState::RunAsync(Executor::DoneCallback done) {
+
+  JFCHERNG_VLOG(0, "Func") << "ExecutorState::RunAsync()";
+
   const Graph* graph = impl_->graph_;
   TaggedNodeSeq ready;
 
@@ -1438,6 +1441,9 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
     // Schedule to run all the ready ops in thread pool.
     ScheduleReady(ready, nullptr);
   }
+
+  JFCHERNG_VLOG(0, "Func Exits") << "ExecutorState::RunAsync()";
+
 }
 
 // State kept alive for executing an asynchronous node in another
@@ -1486,6 +1492,9 @@ struct ExecutorState::AsyncState {
 };
 
 void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
+
+  JFCHERNG_VLOG(0, "Func") << "ExecutorState::Process()";
+
   const GraphView& gview = impl_->gview_;
   TaggedNodeSeq ready;
   TaggedNodeReadyQueue inline_ready;
@@ -1555,7 +1564,9 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 
     if (vlog_) {
       VLOG(1) << "Process node: " << id << " step " << params.step_id << " "
-              << SummarizeNode(*node) << " is dead: " << tagged_node.is_dead;
+              << SummarizeNodeDef(node->def())
+              << " is dead: " << tagged_node.is_dead
+              << ", actual assigned device = " << node->assigned_device_name();
     }
 
     Entry* input_tensors = GetInputTensors(input_frame, input_iter);
@@ -1689,6 +1700,9 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 
   // This thread of computation is done if completed = true.
   if (completed) Finish();
+
+  JFCHERNG_VLOG(0, "Func Exit") << "ExecutorState::Process()";
+
 }
 
 Status ExecutorState::PrepareInputs(const NodeItem& item, Entry* first_input,
@@ -1997,6 +2011,9 @@ void ExecutorState::PropagateOutputs(const TaggedNode& tagged_node,
 bool ExecutorState::NodeDone(const Status& s, const Node* node,
                              const TaggedNodeSeq& ready, NodeExecStats* stats,
                              TaggedNodeReadyQueue* inline_ready) {
+
+  JFCHERNG_VLOG(0, "Func") << "ExecutorState::NodeDone()";
+
   if (stats) {
     nodestats::SetAllEnd(stats);
     if (!SetTimelineLabel(node, stats)) {
@@ -2038,22 +2055,37 @@ bool ExecutorState::NodeDone(const Status& s, const Node* node,
   if (s.ok()) {
     ScheduleReady(ready, inline_ready);
   }
+
+  JFCHERNG_VLOG(0, "Func Exit") << "ExecutorState::NodeDone()";
+
   return completed;
 }
 
 void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
                                   TaggedNodeReadyQueue* inline_ready) {
-  if (ready.empty()) return;
+
+  JFCHERNG_VLOG(0, "Func") << "ExecutorState::ScheduleReady()";
+
+  if (ready.empty()) {
+    JFCHERNG_VLOG(0, "Cond. met") << "ready.empty() -> return";
+    return;
+  }
 
   int64 scheduled_usec = 0;
   if (stats_collector_) {
     scheduled_usec = nodestats::NowInUsec();
   }
   if (inline_ready == nullptr) {
+    JFCHERNG_VLOG(0, "Cond. met") << "inline_ready == nullptr";
     // Schedule to run all the ready ops in thread pool.
     for (auto& tagged_node : ready) {
+
+      // jfcherng: try to print out some node information here
+      JFCHERNG_VLOG(0, "Node") << tagged_node.node->name();
+
       runner_([=]() { Process(tagged_node, scheduled_usec); });
     }
+    JFCHERNG_VLOG(0, "Cond. met END") << "inline_ready == nullptr";
     return;
   }
   const GraphView& gview = impl_->gview_;
@@ -2062,11 +2094,13 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
     const NodeItem& item = *gview.node(tagged_node.node->id());
     if (tagged_node.is_dead || !item.kernel_is_expensive) {
       // Inline this inexpensive node.
+      JFCHERNG_VLOG(0, "Cond. met") << "Inline this inexpensive node: " << tagged_node.node->name();
       inline_ready->push_back(tagged_node);
     } else {
       if (curr_expensive_node) {
         // Dispatch to another thread since there is plenty of work to
         // do for this thread.
+        JFCHERNG_VLOG(0, "Cond. met") << "ExecutorState::Process: " << tagged_node.node->name();
         runner_(std::bind(&ExecutorState::Process, this, *curr_expensive_node,
                           scheduled_usec));
       }
@@ -2076,14 +2110,19 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
   if (curr_expensive_node) {
     if (inline_ready->empty()) {
       // Tail recursion optimization
+      JFCHERNG_VLOG(0, "Cond. met") << "Tail recursion optimization: " << (*curr_expensive_node).node->name();
       inline_ready->push_back(*curr_expensive_node);
     } else {
       // There are inline nodes to run already. We dispatch this expensive
       // node to other thread.
+      JFCHERNG_VLOG(0, "Cond. met") << "Tail ExecutorState::Process: " << (*curr_expensive_node).node->name();
       runner_(std::bind(&ExecutorState::Process, this, *curr_expensive_node,
                         scheduled_usec));
     }
   }
+
+  JFCHERNG_VLOG(0, "Func Exit") << "ExecutorState::ScheduleReady()";
+
 }
 
 inline void ExecutorState::MaybeMarkCompleted(FrameState* frame, int64 iter,
