@@ -10,7 +10,7 @@ with tf.Session(config=config) as sess:
     a = tf.constant([1.0, 2.0], name="a")
     b = tf.constant([2.0, 3.0], name="b")
 
-with tf.device("/job:localhost/replica:0/task:0/device:XLA_CPU:0"):
-    c = tf.add(a, b, name="c")
+    with tf.device("/job:localhost/replica:0/task:0/device:XLA_CPU:0"):
+        c = tf.add(a, b, name="c")
 
     print(sess.run(c))
