@@ -6,8 +6,8 @@
 
 GraphOutputDir=/tmp/tensorflow
 
-JFCHERNG_DEBUG=1
-TF_CPP_MIN_VLOG_LEVEL=2 # to dump XLA graph, this should be >= 1
+JFCHERNG_DEBUG=0
+TF_CPP_MIN_VLOG_LEVEL=0 # to dump XLA graph, this should be >= 1
 TF_XLA_FLAGS_ARRAY=(
     # terms:
     #     log  = show message on the screen
@@ -16,7 +16,13 @@ TF_XLA_FLAGS_ARRAY=(
     # output directory
     "--tf_dump_graph_prefix=${GraphOutputDir}"
     "--xla_dump_computations_to=${GraphOutputDir}"
+    "--xla_dump_executions_to=${GraphOutputDir}"
     "--xla_hlo_dump_graph_path=${GraphOutputDir}"
+
+    # Show addresses of HLO ops in graph
+    # Show layout of HLO ops in graph
+    "--xla_hlo_graph_addresses"
+    "--xla_hlo_graph_layout"
 
     # this flag will dump HLO graph (disregard TF_CPP_MIN_VLOG_LEVEL)
     "--xla_generate_hlo_graph=.*"
@@ -25,8 +31,12 @@ TF_XLA_FLAGS_ARRAY=(
     # true / false = pbtxt / dot
     "--xla_hlo_dump_as_graphdef=true"
 
+    # If true, include hlo dumps of graphs from ComputeConstant.
+    # not working???
+    "--xla_hlo_graph_for_compute_constant=true"
+
     # show HLO IR (text form) on the screen
-    "--xla_log_hlo_text=.*"
+    # "--xla_log_hlo_text=.*"
 )
 
 ##############
@@ -36,7 +46,8 @@ TF_XLA_FLAGS_ARRAY=(
 TF_XLA_FLAGS=${TF_XLA_FLAGS_ARRAY[*]}
 
 mkdir -p ${GraphOutputDir}
-rm -f "${GraphOutputDir}"/*
+rm -rf "${GraphOutputDir:?}"/*
+
 
 ##############
 # export ENV #
