@@ -22,7 +22,7 @@ PROJECT_DIR = ${PROJECT_DIR}
 EOF
 
 # go to the root dir of this project
-cd "${PROJECT_DIR}"
+cd "${PROJECT_DIR}" || exit
 
 # remove old builds
 # ":?" means If parameter is null or unset, the expansion of word
@@ -44,4 +44,4 @@ fi
 sudo -H ${PIP_EXECUTABLE} install ${TENSORFLOW_BUILD_DIR}/*.whl || exit
 
 # go back to current dir
-cd "${CURRENT_DIR}"
+cd "${CURRENT_DIR}" || exit
