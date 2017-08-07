@@ -15,6 +15,7 @@ limitations under the License.
 
 // Native XLA implementations of XLA Relu Ops
 
+#include "tensorflow/compiler/tf2xla/shape_util.h" // added
 #include "tensorflow/compiler/tf2xla/kernels/cwise_ops.h"
 #include "tensorflow/compiler/tf2xla/xla_helpers.h"
 #include "tensorflow/compiler/tf2xla/xla_op_registry.h"
@@ -31,7 +32,28 @@ class ReluOp : public XlaOpKernel {
  public:
   explicit ReluOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {}
   // Computes the max of the scalar input x and 0.
-  void Compile(XlaOpKernelContext* ctx) override {
+  void Compile(XlaOpKernelContext* ctx) {
+
+    // args
+    std::vector<xla::ComputationDataHandle> args;
+    args.push_back(ctx->Input(0));
+
+    // shape
+    TensorShape result_shape = ctx->InputShape(0);
+    xla::Shape xla_out_shape;
+    OP_REQUIRES_OK(
+        ctx, TensorShapeToXLAShape(DT_FLOAT, result_shape, &xla_out_shape));
+
+    // custom call
+    xla::ComputationBuilder& b = *ctx->builder();
+    xla::ComputationDataHandle output;
+    output = b.CustomCall("relu_op_jfcherng_xla_impl", args, xla_out_shape);
+
+    ctx->SetOutput(0, output);
+
+    return;
+
+    // official implementation
     xla::ComputationBuilder* builder = ctx->builder();
     auto zero = XlaHelpers::Zero(builder, input_type(0));
     ctx->SetOutput(0, builder->Max(zero, ctx->Input(0)));

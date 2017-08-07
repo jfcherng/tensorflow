@@ -4,6 +4,7 @@
 # configs #
 ###########
 
+BazelBinDir=/home/jfcherng/Desktop/repo/tensorflow/bazel-bin
 GraphOutputDir=/tmp/tensorflow
 
 JFCHERNG_DEBUG=0
@@ -39,11 +40,18 @@ TF_XLA_FLAGS_ARRAY=(
     # "--xla_log_hlo_text=.*"
 )
 
+# external dlsym() for XLA custom-call
+TF_LD_PRELOAD_ARRAY=(
+    "${BazelBinDir}/tensorflow/compiler/tf2xla/kernels/relu_op_jfcherng_xla_impl.so"
+)
+
+
 ##############
 # preprocess #
 ##############
 
 TF_XLA_FLAGS=${TF_XLA_FLAGS_ARRAY[*]}
+TF_LD_PRELOAD=${TF_LD_PRELOAD_ARRAY[*]}
 
 mkdir -p ${GraphOutputDir}
 rm -rf "${GraphOutputDir:?}"/*
@@ -56,6 +64,8 @@ rm -rf "${GraphOutputDir:?}"/*
 export JFCHERNG_DEBUG="${JFCHERNG_DEBUG}"
 export TF_CPP_MIN_VLOG_LEVEL="${TF_CPP_MIN_VLOG_LEVEL}"
 export TF_XLA_FLAGS="${TF_XLA_FLAGS}"
+export LD_PRELOAD="${TF_LD_PRELOAD}"
+
 
 ###########
 # execute #
