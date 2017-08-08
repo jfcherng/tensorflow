@@ -10,7 +10,10 @@ config = tf.ConfigProto(log_device_placement=True)
 # config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
 
 test_op_name = "relu"
+
+# scalar test
 test_cases = [ 12.34, -56.78, 0.0 ]
+test_cases_2 = [ [12.34, -56.78] ]
 
 
 def main(_):
@@ -21,20 +24,37 @@ def main(_):
         device_string = '/job:localhost/replica:0/task:0/device:CPU:0'
 
     with tf.Session(config=config) as sess:
-
-        x = tf.placeholder(tf.float32, [], name="x")
-
         with tf.device(device_string):
 
+            t = test_cases
+            x = tf.placeholder(tf.float32, [], name="x")
+
             output = tf.nn.relu(x, name="output")
-
             # run test cases
-            for test_case in test_cases:
-
+            for test_case in t:
                 result = sess.run(output, { x: test_case })
-
                 print(
-                    "[custom_call] x = {}, {}(x) = {}".format(
+                    "[custom_call]\n"
+                    "\tx = {}\n"
+                    "\t{}(x) = {}".format(
+                        test_case, test_op_name, result
+                    )
+                )
+
+    with tf.Session(config=config) as sess:
+        with tf.device(device_string):
+
+            t = test_cases_2
+            x = tf.placeholder(tf.float32, [2], name="x")
+
+            output = tf.nn.relu(x, name="output")
+            # run test cases
+            for test_case in t:
+                result = sess.run(output, { x: test_case })
+                print(
+                    "[custom_call]\n"
+                    "\tx = {}\n"
+                    "\t{}(x) = {}".format(
                         test_case, test_op_name, result
                     )
                 )
