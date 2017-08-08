@@ -12,6 +12,11 @@ SCRIPT_DIR  = ${SCRIPT_DIR}
 PROJECT_DIR = ${PROJECT_DIR}
 EOF
 
+# external dlsym() for XLA custom-call
+CustomCalls=(
+    "relu_op_jfcherng_xla_impl.so"
+)
+
 
 ###########
 # compile #
@@ -19,6 +24,10 @@ EOF
 
 cd "${PROJECT_DIR}"
 
-bazel build -s --config=opt //tensorflow/compiler/tf2xla/kernels:*.so
+for CustomCall in "${CustomCalls[@]}"
+do
+    bazel build -s --config=opt //tensorflow/compiler/tf2xla/kernels:"${CustomCall}"
+done
+
 
 cd "${CURRENT_DIR}"
