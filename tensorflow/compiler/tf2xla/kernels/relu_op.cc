@@ -33,19 +33,21 @@ class ReluOp : public XlaOpKernel {
   explicit ReluOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {}
   // Computes the max of the scalar input x and 0.
   void Compile(XlaOpKernelContext* ctx) {
-
-    // args
-    std::vector<xla::ComputationDataHandle> args;
-    args.push_back(ctx->Input(0));
+    xla::ComputationBuilder& b = *ctx->builder();
 
     // shape
-    TensorShape result_shape = ctx->InputShape(0);
+    TensorShape input_shape = ctx->InputShape(0);
     xla::Shape xla_out_shape;
     OP_REQUIRES_OK(
-        ctx, TensorShapeToXLAShape(DT_FLOAT, result_shape, &xla_out_shape));
+        ctx, TensorShapeToXLAShape(DT_FLOAT, input_shape, &xla_out_shape));
+
+    // args (we need the input and its shape information)
+    std::vector<xla::ComputationDataHandle> args;
+    args.push_back(ctx->Input(0));
+    args.push_back(b.ConstantLiteral(
+        *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
 
     // custom call
-    xla::ComputationBuilder& b = *ctx->builder();
     xla::ComputationDataHandle output;
     output = b.CustomCall("relu_op_jfcherng_xla_impl", args, xla_out_shape);
 
