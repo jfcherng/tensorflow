@@ -44,6 +44,9 @@ class ReluOp : public XlaOpKernel {
     // args (we need the input and its shape information)
     std::vector<xla::ComputationDataHandle> args;
     args.push_back(ctx->Input(0));
+    // if we have a 3-D, 5 by 3 by 7 tensor , then
+    // shape.dim_sizes() = [5, 3, 7] and
+    // shape.dims() = 3.
     args.push_back(b.ConstantLiteral(
         *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
     args.push_back(b.ConstantLiteral(

@@ -6,35 +6,35 @@
 #include "tensorflow/core/platform/macros.h"
 #include "tensorflow/core/platform/types.h"
 
-#include <iostream>
+#include <functional> // std::multiplies
+#include <numeric> // std::accumulate
 
 namespace tensorflow {
 
 void relu_op_jfcherng_xla_impl(void *out, void **data) {
 
-  // data is managed by the JIT code so msan can't tell it's initialized.
-  TF_ANNOTATE_MEMORY_IS_INITIALIZED(data, sizeof(void*));
-
+  // the input tensor (but represented in a 1-D array)
   float *input = static_cast<float *>(data[0]);
+  // the output tensor
+  float *output = static_cast<float *>(out);
 
-  int64 *input_dim_sizes = static_cast<int64 *>(data[1]); // [5, 3]
+  // if we have a 3-D, 5 by 3 by 7 tensor, then
+  // *input_dim_sizes = [5, 3, 7] and
+  // input_dim = 3.
+  int64 *input_dim_sizes = static_cast<int64 *>(data[1]);
+  int64 input_dim = *static_cast<int64 *>(data[2]);
 
-  int64 *input_dim = static_cast<int64 *>(data[2]); // 2
+  // calculate tolal element counts of the input
+  int64 elementCounts = std::accumulate(
+                          input_dim_sizes,
+                          input_dim_sizes + input_dim,
+                          1,
+                          std::multiplies<int64>()
+                        );
 
-  // calculate tolal elements from the input
-  int64 totalElementCounts = 1;
-  for (int i = 0; i < *input_dim; ++i) {
-    totalElementCounts *= input_dim_sizes[i];
-  }
-
-  float *out_real = static_cast<float *>(out);
-
-  for (int i = 0; i < totalElementCounts; ++i) {
-    if (input[i] > 0.0) {
-      out_real[i] = input[i];
-    } else {
-      out_real[i] = 0.0;
-    }
+  // do ReLU on each element of the input
+  for (int i = 0; i < elementCounts; ++i) {
+    output[i] = (input[i] > 0.0) ? input[i] : 0.0;
   }
 
 }
