@@ -25,8 +25,6 @@ limitations under the License.
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/kernels/no_op.h"
 
-#include <iostream>
-
 namespace tensorflow {
 namespace {
 
@@ -50,15 +48,6 @@ class ReluOp : public XlaOpKernel {
         *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
     args.push_back(b.ConstantLiteral(
         *xla::LiteralUtil::CreateR0<int64>(input_shape.dims())));
-
-    for (int i = 0; i < input_shape.dims(); i++) {
-      std::cout
-        << "input_shape.dim_size(" << i << ") = " << input_shape.dim_size(i)
-        << std::endl;
-    }
-    std::cout << "input_shape.dims() = " << input_shape.dims() << std::endl;
-    std::cout << "...dim_size ends" << std::endl;
-
 
     // custom call
     xla::ComputationDataHandle output;
