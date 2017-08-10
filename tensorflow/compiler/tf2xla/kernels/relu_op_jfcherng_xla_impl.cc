@@ -6,6 +6,8 @@
 #include "tensorflow/core/platform/macros.h"
 #include "tensorflow/core/platform/types.h"
 
+#include <iostream>
+
 namespace tensorflow {
 
 void relu_op_jfcherng_xla_impl(void *out, void **data) {
@@ -15,12 +17,24 @@ void relu_op_jfcherng_xla_impl(void *out, void **data) {
 
   float *input = static_cast<float *>(data[0]);
 
+  int64 *input_dim_sizes = static_cast<int64 *>(data[1]); // [5, 3]
+
+  int64 *input_dim = static_cast<int64 *>(data[2]); // 2
+
+  // calculate tolal elements from the input
+  int64 totalElementCounts = 1;
+  for (int i = 0; i < *input_dim; ++i) {
+    totalElementCounts *= input_dim_sizes[i];
+  }
+
   float *out_real = static_cast<float *>(out);
 
-  if (input[0] > 0.0) {
-    out_real[0] = input[0];
-  } else {
-    out_real[0] = 0.0;
+  for (int i = 0; i < totalElementCounts; ++i) {
+    if (input[i] > 0.0) {
+      out_real[i] = input[i];
+    } else {
+      out_real[i] = 0.0;
+    }
   }
 
 }

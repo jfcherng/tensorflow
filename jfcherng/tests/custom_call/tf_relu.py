@@ -1,6 +1,7 @@
 import argparse
 import sys
 import tensorflow as tf
+import numpy as np
 
 FLAGS = None
 
@@ -12,8 +13,62 @@ config = tf.ConfigProto(log_device_placement=True)
 test_op_name = "relu"
 
 # scalar test
-test_cases = [ 12.34, -56.78, 0.0 ]
-test_cases_2 = [ [12.34, -56.78] ]
+all_test_cases = [
+
+    # 0-D test cases
+    [
+        # 0-D
+        12.34,
+        # 0-D
+        -56.78,
+        # 0-D
+        0.0,
+    ],
+
+    # 1-D test cases
+    [
+        # 1-D: 2
+        [12.34, -56.78],
+    ],
+
+    # 2-D test cases
+    [
+        # 2-D: 5x3
+        [
+            [12.34, -56.78, 0.1],
+            [12.34, -56.78, 0.1],
+            [12.34, -56.78, 0.1],
+            [12.34, -56.78, 0.1],
+            [12.34, -56.78, 0.1],
+        ],
+    ],
+
+    # 3-D test cases
+    [
+        # 3-D: 2x5x3
+        [
+            [
+                [-2.34, 56.78, -0.1],
+                [-2.34, 56.78, -0.1],
+                [-2.34, 56.78, -0.1],
+                [-2.34, 56.78, -0.1],
+                [-2.34, 56.78, -0.1],
+            ],
+            [
+                [12.34, -56.78, 0.1],
+                [12.34, -56.78, 0.1],
+                [12.34, -56.78, 0.1],
+                [12.34, -56.78, 0.1],
+                [12.34, -56.78, 0.1],
+            ]
+        ],
+    ]
+
+]
+
+
+def absDiff(a, b):
+    return abs(a-b)
 
 
 def main(_):
@@ -23,41 +78,31 @@ def main(_):
     else:
         device_string = '/job:localhost/replica:0/task:0/device:CPU:0'
 
-    with tf.Session(config=config) as sess:
-        with tf.device(device_string):
+    for test_cases in all_test_cases:
 
-            t = test_cases
-            x = tf.placeholder(tf.float32, [], name="x")
+        with tf.Session(config=config) as sess:
+            with tf.device(device_string):
 
-            output = tf.nn.relu(x, name="output")
-            # run test cases
-            for test_case in t:
-                result = sess.run(output, { x: test_case })
-                print(
-                    "[custom_call]\n"
-                    "\tx = {}\n"
-                    "\t{}(x) = {}".format(
-                        test_case, test_op_name, result
-                    )
-                )
+                test_case_shape = np.array(test_cases[0]).shape
+                print('[custom_call] shape =', test_case_shape)
 
-    with tf.Session(config=config) as sess:
-        with tf.device(device_string):
+                x = tf.placeholder(tf.float32, np.array(test_cases[0]).shape, name="x")
+                output = tf.nn.relu(x, name="output")
 
-            t = test_cases_2
-            x = tf.placeholder(tf.float32, [2], name="x")
+                # run test cases
+                for test_case in test_cases:
 
-            output = tf.nn.relu(x, name="output")
-            # run test cases
-            for test_case in t:
-                result = sess.run(output, { x: test_case })
-                print(
-                    "[custom_call]\n"
-                    "\tx = {}\n"
-                    "\t{}(x) = {}".format(
-                        test_case, test_op_name, result
-                    )
-                )
+                    result = sess.run(output, { x: test_case })
+
+                    t_shape = np.array(test_case).size
+                    test_case = np.array(test_case).reshape((1, t_shape))
+                    result = np.array(result).reshape((1, t_shape))
+
+                    print('[custom_call] ', 'input'.rjust(10), ' -> ', 'result'.ljust(10))
+                    for (inputs_, outputs_) in (zip(test_case, result)):
+                        for (input_, output_) in (zip(inputs_, outputs_)):
+                            print('[custom_call] ', (str(input_)).rjust(10), ' -> ', (str(output_)).ljust(10))
+                    print('[custom_call]')
 
 
 if __name__ == '__main__':
