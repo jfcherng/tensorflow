@@ -33,10 +33,21 @@ namespace {
 class SoftmaxOp : public XlaOpKernel {
  public:
   explicit SoftmaxOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {
-        log_ = StringPiece(type_string()).starts_with("Log");
+    log_ = StringPiece(type_string()).starts_with("Log");
   }
   // Computes the max of the scalar input x and 0.
   void Compile(XlaOpKernelContext* ctx) {
+
+    /**
+     * Note that the original user input has been somehow transformed into a
+     * 2-D matrix here. And we just have to do softmax for the 2-D matrix here.
+     * We can verify this behavior by viewing the HLO graph in TensorBoard.
+     * Also, the official HLO decomposition show that the hard-coded codes only
+     * do softmax for a 2-D matrix like tf.nn.softmax(tensor, dim=-1).
+     *
+     * @todo: what if log_ = 0?
+     */
+
     xla::ComputationBuilder& b = *ctx->builder();
 
     // shape
@@ -48,76 +59,64 @@ class SoftmaxOp : public XlaOpKernel {
     // args (we need the input and its shape information)
     std::vector<xla::ComputationDataHandle> args;
     args.push_back(ctx->Input(0));
-
-cout<< "XXXXXX1" << endl;
-
-    // args.push_back(ctx->Input(1));
-cout<< "XXXXXX2" << endl;
-
     args.push_back(b.ConstantLiteral(
         *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
     args.push_back(b.ConstantLiteral(
         *xla::LiteralUtil::CreateR0<int64>(input_shape.dims())));
-    // args.push_back(ctx->Input(1));
-    // args.push_back(b.ConstantLiteral(
-    //     *xla::LiteralUtil::CreateR0<int64>(ctx->Input(1))));
+
     // custom call
     xla::ComputationDataHandle output;
-    output = b.CustomCall("softmax_op_jfcherng_xla_impl", args, xla_out_shape);
+    output = b.CustomCall("softmax_op_hsien_xla_impl", args, xla_out_shape);
 
     ctx->SetOutput(0, output);
 
     return;
+
+    //////////////
+    // official //
+    //////////////
+
+    // const TensorShape logits_shape = ctx->InputShape(0);
+    // OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(logits_shape),
+    //             errors::InvalidArgument("logits must be 2-dimensional"));
+
+    // const int kBatchDim = 0;
+    // const int kClassDim = 1;
+
+    // const DataType type = input_type(0);
+    // auto logits = ctx->Input(0);
+
+    // xla::ComputationBuilder* b = ctx->builder();
+    // const xla::Computation& max_func = *ctx->GetOrCreateMax(type);
+    // const xla::Computation& add_func = *ctx->GetOrCreateAdd(type);
+
+    // // Find the max in each batch, resulting in a tensor of shape [batch]
+    // auto logits_max =
+    //     b->Reduce(logits, XlaHelpers::MinValue(b, type), max_func, {kClassDim});
+    // // Subtract the max in batch b from every element in batch b. Broadcasts
+    // // along the batch dimension.
+    // auto shifted_logits = b->Sub(logits, logits_max, {kBatchDim});
+    // xla::ComputationDataHandle softmax;
+    // if (log_) {
+    //   // softmax = shifted_logits - log(sum(exp(shifted_logits)))
+    //   auto log_sum_exp =
+    //       b->Log(b->Reduce(b->Exp(shifted_logits), XlaHelpers::Zero(b, type),
+    //                        add_func, {kClassDim}));
+    //   softmax = b->Sub(shifted_logits, log_sum_exp, {kBatchDim});
+    // } else {
+    //   // softmax = exp(shifted_logits) / sum(exp(shifted_logits))
+    //   auto exp_shifted = b->Exp(shifted_logits);
+    //   auto sum_exp = b->Reduce(exp_shifted, XlaHelpers::Zero(b, type), add_func,
+    //                            {kClassDim});
+    //   softmax = b->Div(exp_shifted, sum_exp, {kBatchDim});
+    // }
+
+    // ctx->SetOutput(0, softmax);
+
   }
+
  private:
   bool log_;
-/*
- public:
-  explicit SoftmaxOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {
-    log_ = StringPiece(type_string()).starts_with("Log");
-  }
-
-  void Compile(XlaOpKernelContext* ctx) override {
-    const TensorShape logits_shape = ctx->InputShape(0);
-    OP_REQUIRES(ctx, TensorShapeUtils::IsMatrix(logits_shape),
-                errors::InvalidArgument("logits must be 2-dimensional"));
-
-    const int kBatchDim = 0;
-    const int kClassDim = 1;
-
-    const DataType type = input_type(0);
-    auto logits = ctx->Input(0);
-
-    xla::ComputationBuilder* b = ctx->builder();
-    const xla::Computation& max_func = *ctx->GetOrCreateMax(type);
-    const xla::Computation& add_func = *ctx->GetOrCreateAdd(type);
-
-    // Find the max in each batch, resulting in a tensor of shape [batch]
-    auto logits_max =
-        b->Reduce(logits, XlaHelpers::MinValue(b, type), max_func, {kClassDim});
-    // Subtract the max in batch b from every element in batch b. Broadcasts
-    // along the batch dimension.
-    auto shifted_logits = b->Sub(logits, logits_max, {kBatchDim});
-    xla::ComputationDataHandle softmax;
-    if (log_) {
-      // softmax = shifted_logits - log(sum(exp(shifted_logits)))
-      auto log_sum_exp =
-          b->Log(b->Reduce(b->Exp(shifted_logits), XlaHelpers::Zero(b, type),
-                           add_func, {kClassDim}));
-      softmax = b->Sub(shifted_logits, log_sum_exp, {kBatchDim});
-    } else {
-      // softmax = exp(shifted_logits) / sum(exp(shifted_logits))
-      auto exp_shifted = b->Exp(shifted_logits);
-      auto sum_exp = b->Reduce(exp_shifted, XlaHelpers::Zero(b, type), add_func,
-                               {kClassDim});
-      softmax = b->Div(exp_shifted, sum_exp, {kBatchDim});
-    }
-
-    ctx->SetOutput(0, softmax);
-  }
-
- private:
-  bool log_;*/
 };
 
 REGISTER_XLA_OP(Name("Softmax"), SoftmaxOp);

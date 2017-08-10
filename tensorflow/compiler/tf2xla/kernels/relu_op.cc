@@ -33,6 +33,7 @@ class ReluOp : public XlaOpKernel {
   explicit ReluOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {}
   // Computes the max of the scalar input x and 0.
   void Compile(XlaOpKernelContext* ctx) {
+
     xla::ComputationBuilder& b = *ctx->builder();
 
     // shape
@@ -60,10 +61,13 @@ class ReluOp : public XlaOpKernel {
 
     return;
 
-    // official implementation
-    xla::ComputationBuilder* builder = ctx->builder();
-    auto zero = XlaHelpers::Zero(builder, input_type(0));
-    ctx->SetOutput(0, builder->Max(zero, ctx->Input(0)));
+    //////////////
+    // official //
+    //////////////
+    // xla::ComputationBuilder* builder = ctx->builder();
+    // auto zero = XlaHelpers::Zero(builder, input_type(0));
+    // ctx->SetOutput(0, builder->Max(zero, ctx->Input(0)));
+
   }
 };
 

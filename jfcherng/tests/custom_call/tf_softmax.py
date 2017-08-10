@@ -13,20 +13,10 @@ config = tf.ConfigProto(log_device_placement=True)
 # scalar test
 all_test_cases = [
 
-    # 0-D test cases
-    [
-        # 0-D
-        12.34,
-        # 0-D
-        -56.78,
-        # 0-D
-        0.0,
-    ],
-
     # 1-D test cases
     [
-        # 1-D: 2
-        [12.34, -56.78],
+        # 1-D: 7
+        [1, 2, 3, 4, 1, 2, 3],
     ],
 
     # 2-D test cases
@@ -85,7 +75,7 @@ def main(_):
                 print('[custom_call] shape =', test_case_shape)
 
                 x = tf.placeholder(tf.float32, np.array(test_cases[0]).shape, name="x")
-                output = tf.nn.relu(x, name="output")
+                output = tf.nn.softmax(x, dim=-1, name="output")
 
                 # run test cases
                 for test_case in test_cases:

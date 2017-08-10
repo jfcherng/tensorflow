@@ -188,7 +188,7 @@ tf_kernel_library(
     ],
 )
 
-# jfcherng: custom-call
+# custom-call
 
 load("//tensorflow:tensorflow.bzl", "tf_custom_op_library")
 
@@ -200,13 +200,9 @@ tf_custom_op_library(
     ],
 )
 
-# jfcherng: custom-call
-
-load("//tensorflow:tensorflow.bzl", "tf_custom_op_library")
-
 tf_custom_op_library(
-    name = "softmax_op_jfcherng_xla_impl.so",
-    srcs = ["softmax_op_jfcherng_xla_impl.cc"],
+    name = "softmax_op_hsien_xla_impl.so",
+    srcs = ["softmax_op_hsien_xla_impl.cc"],
     deps = [
         "//tensorflow/core:framework_lite",
     ],

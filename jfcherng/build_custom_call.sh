@@ -15,6 +15,7 @@ EOF
 # external dlsym() for XLA custom-call
 CustomCalls=(
     "relu_op_jfcherng_xla_impl.so"
+    "softmax_op_hsien_xla_impl.so"
 )
 
 

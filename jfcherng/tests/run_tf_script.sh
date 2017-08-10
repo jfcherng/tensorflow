@@ -43,6 +43,7 @@ TF_XLA_FLAGS_ARRAY=(
 # external dlsym() for XLA custom-call
 TF_LD_PRELOAD_ARRAY=(
     "${BazelBinDir}/tensorflow/compiler/tf2xla/kernels/relu_op_jfcherng_xla_impl.so"
+    "${BazelBinDir}/tensorflow/compiler/tf2xla/kernels/softmax_op_hsien_xla_impl.so"
 )
 
 
