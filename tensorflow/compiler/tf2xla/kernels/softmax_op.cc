@@ -14,18 +14,64 @@ limitations under the License.
 ==============================================================================*/
 
 // XLA-specific Ops for softmax.
-
+#include "tensorflow/compiler/tf2xla/shape_util.h" // added
 #include "tensorflow/compiler/tf2xla/xla_helpers.h"
 #include "tensorflow/compiler/tf2xla/xla_op_kernel.h"
 #include "tensorflow/compiler/tf2xla/xla_op_registry.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/tensor.h"
 #include "tensorflow/core/framework/tensor_shape.h"
+#include <iostream>
+
+using namespace std;
 
 namespace tensorflow {
 namespace {
 
+
+
 class SoftmaxOp : public XlaOpKernel {
+ public:
+  explicit SoftmaxOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {
+        log_ = StringPiece(type_string()).starts_with("Log");
+  }
+  // Computes the max of the scalar input x and 0.
+  void Compile(XlaOpKernelContext* ctx) {
+    xla::ComputationBuilder& b = *ctx->builder();
+
+    // shape
+    TensorShape input_shape = ctx->InputShape(0);
+    xla::Shape xla_out_shape;
+    OP_REQUIRES_OK(
+        ctx, TensorShapeToXLAShape(DT_FLOAT, input_shape, &xla_out_shape));
+
+    // args (we need the input and its shape information)
+    std::vector<xla::ComputationDataHandle> args;
+    args.push_back(ctx->Input(0));
+
+cout<< "XXXXXX1" << endl;
+
+    // args.push_back(ctx->Input(1));
+cout<< "XXXXXX2" << endl;
+
+    args.push_back(b.ConstantLiteral(
+        *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
+    args.push_back(b.ConstantLiteral(
+        *xla::LiteralUtil::CreateR0<int64>(input_shape.dims())));
+    // args.push_back(ctx->Input(1));
+    // args.push_back(b.ConstantLiteral(
+    //     *xla::LiteralUtil::CreateR0<int64>(ctx->Input(1))));
+    // custom call
+    xla::ComputationDataHandle output;
+    output = b.CustomCall("softmax_op_jfcherng_xla_impl", args, xla_out_shape);
+
+    ctx->SetOutput(0, output);
+
+    return;
+  }
+ private:
+  bool log_;
+/*
  public:
   explicit SoftmaxOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {
     log_ = StringPiece(type_string()).starts_with("Log");
@@ -71,7 +117,7 @@ class SoftmaxOp : public XlaOpKernel {
   }
 
  private:
-  bool log_;
+  bool log_;*/
 };
 
 REGISTER_XLA_OP(Name("Softmax"), SoftmaxOp);
