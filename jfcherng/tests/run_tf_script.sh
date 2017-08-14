@@ -6,7 +6,7 @@
 
 GraphOutputDir=/tmp/tensorflow
 
-JFCHERNG_DEBUG=0
+JFCHERNG_DEBUG=1
 TF_CPP_MIN_VLOG_LEVEL=0 # to dump XLA graph, this should be >= 1
 TF_XLA_FLAGS_ARRAY=(
     # terms:
