@@ -12,8 +12,8 @@ SCRIPT_DIR  = ${SCRIPT_DIR}
 PROJECT_DIR = ${PROJECT_DIR}
 EOF
 
-# external dlsym() for XLA custom-call
-CustomCalls=(
+UserOps=(
+    "my_op.so"
     "zero_out.so"
 )
 
@@ -24,9 +24,9 @@ CustomCalls=(
 
 cd "${PROJECT_DIR}"
 
-for CustomCall in "${CustomCalls[@]}"
+for UserOp in "${UserOps[@]}"
 do
-    bazel build -s --config opt //tensorflow/core/user_ops:"${CustomCall}"
+    bazel build -s --config opt //tensorflow/core/user_ops:"${UserOp}"
 done
 
 
