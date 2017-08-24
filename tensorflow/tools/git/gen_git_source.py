@@ -208,11 +208,11 @@ def generate(arglist):
     git_version = b"unknown"
   else:
     old_branch = data["branch"]
-    new_branch = parse_branch_ref(head_symlink)
-    if new_branch != old_branch:
-      raise RuntimeError(
-          "Run ./configure again, branch was '%s' but is now '%s'" %
-          (old_branch, new_branch))
+    # new_branch = parse_branch_ref(head_symlink)
+    # if new_branch != old_branch:
+    #   raise RuntimeError(
+    #       "Run ./configure again, branch was '%s' but is now '%s'" %
+    #       (old_branch, new_branch))
     git_version = get_git_version(data["path"])
   write_version_info(dest_file, git_version)
 
