@@ -49,9 +49,9 @@ class ReluOp : public XlaOpKernel {
     // shape.dim_sizes() = [5, 3, 7] and
     // shape.dims() = 3.
     args.push_back(b.ConstantLiteral(
-        *xla::LiteralUtil::CreateR1<int64>(input_shape.dim_sizes())));
+        *xla::Literal::CreateR1<int64>(input_shape.dim_sizes())));
     args.push_back(b.ConstantLiteral(
-        *xla::LiteralUtil::CreateR0<int64>(input_shape.dims())));
+        *xla::Literal::CreateR0<int64>(input_shape.dims())));
 
     // custom call
     xla::ComputationDataHandle output;
