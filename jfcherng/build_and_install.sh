@@ -32,7 +32,7 @@ cd "${PROJECT_DIR}" || exit
 rm -f ${TENSORFLOW_BUILD_DIR:?}/*.whl
 
 # build
-bazel build --config=opt //tensorflow/tools/pip_package:build_pip_package || exit
+bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package || exit
 bazel-bin/tensorflow/tools/pip_package/build_pip_package ${TENSORFLOW_BUILD_DIR} || exit
 
 # remove previously installed TensorFlow
