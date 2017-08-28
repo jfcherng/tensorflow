@@ -34,7 +34,7 @@ namespace xla {
 
 // Minimum supported CUDA compute capability is 3.5.
 constexpr int kMinCudaComputeCapabilityMajor = 3;
-constexpr int kMinCudaComputeCapabilityMinor = 5;
+constexpr int kMinCudaComputeCapabilityMinor = 0; // 3.0 works?
 
 /* static */ StatusOr<std::vector<se::Platform*>>
 PlatformUtil::GetSupportedPlatforms() {
