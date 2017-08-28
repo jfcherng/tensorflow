@@ -18,7 +18,7 @@ TF_XLA_FLAGS_ARRAY=(
     "--tf_dump_graph_prefix=${GraphOutputDir}"
     "--xla_dump_computations_to=${GraphOutputDir}"
     "--xla_dump_executions_to=${GraphOutputDir}"
-    "--xla_hlo_dump_graph_path=${GraphOutputDir}"
+    "--xla_hlo_graph_path=${GraphOutputDir}"
 
     # Show addresses of HLO ops in graph
     # Show layout of HLO ops in graph
