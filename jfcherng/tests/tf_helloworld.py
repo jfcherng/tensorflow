@@ -12,10 +12,9 @@ config = tf.ConfigProto(log_device_placement=True)
 
 def main(_):
 
-    if FLAGS.xla:
-        device_string = '/job:localhost/replica:0/task:0/device:XLA_CPU:0'
-    else:
-        device_string = '/job:localhost/replica:0/task:0/device:CPU:0'
+    device_string = '/job:localhost/replica:0/task:0/device:%s:0' % FLAGS.device
+
+    print('[device string] ' + device_string)
 
     with tf.Session(config=config) as sess:
 
@@ -36,11 +35,15 @@ def main(_):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(add_help=True)
 
-    parser.add_argument('--xla', dest='xla', action='store_true', help='Turn on XLA. (default)')
-    parser.add_argument('--no-xla', dest='xla', action='store_false', help='Turn off XLA.')
-    parser.set_defaults(xla=True)
+    parser.add_argument(
+        '-d', '--device', '--device_string',
+        dest='device',
+        action='store',
+        default='CPU',
+        help='The TensorFlow device for running this script. (default: CPU)',
+    )
 
     FLAGS, unparsed = parser.parse_known_args()
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
