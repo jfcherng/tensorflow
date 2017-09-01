@@ -1,13 +1,23 @@
 #!/usr/bin/env bash
 
+# some constants
+CURRENT_DIR="$(pwd)"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# debug
+cat << EOF
+CURRENT_DIR = ${CURRENT_DIR}
+SCRIPT_DIR  = ${SCRIPT_DIR}
+EOF
+
 ###########
 # configs #
 ###########
 
 GraphOutputDir=/tmp/tensorflow
 
-JFCHERNG_DEBUG=1
-TF_CPP_MIN_VLOG_LEVEL=0 # to dump XLA graph, this should be >= 1
+JFCHERNG_DEBUG=0
+TF_CPP_MIN_VLOG_LEVEL=2 # to dump XLA graph, this should be >= 1
 TF_XLA_FLAGS_ARRAY=(
     # terms:
     #     log  = show message on the screen
