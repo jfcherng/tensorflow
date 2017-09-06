@@ -218,7 +218,10 @@ void DumpPtxasInfo(const string& ptx) {
       /*stdin_input=*/nullptr, /*stdout_output=*/nullptr, &stderr_output);
   XLA_LOG_LINES(tensorflow::INFO, stderr_output);
   if (exit_status != 0) {
-    LOG(FATAL) << "Invalid PTX. See the error message above for reasons.";
+    // jfcherng: changed from FATAL to WARNING
+    // this change prevents from stopping execution
+    // with TF_CPP_MIN_VLOG_LEVEL=2 on some new graphic cards...
+    LOG(WARNING) << "Invalid PTX. See the error message above for reasons.";
   }
 }
 
