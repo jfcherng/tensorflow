@@ -12,6 +12,7 @@ PIP_DEPS=( numpy six wheel )
 
 # do not modify these
 BUILD_WITH_GPU=true
+THREAD_CNT=$( nproc --all )
 TF_CONFIGS=( --config=opt )
 
 # auto generated constants
@@ -43,8 +44,14 @@ echo ""
 
 # build with GPU?
 read -rp "Build TensorFlow with GPU support? [Y/n] " answer
-if [ "${answer,,}" = "n" ]; then
+if [[ "${answer,,}" = "n" ]]; then
     BUILD_WITH_GPU=false
+fi
+
+# parallel compilation thread count?
+read -rp "Parallel compilation thread count? [${THREAD_CNT}] " answer
+if [[ ${answer} =~ ^[0-9]+$ ]]; then
+    THREAD_CNT=${answer}
 fi
 
 echo ""
@@ -59,10 +66,13 @@ for pip_dep in ${PIP_DEPS[*]}; do
     fi
 done
 
-# build
-if [ "${BUILD_WITH_GPU}" = "true" ]; then
+# construct configs for compilation
+if [[ "${BUILD_WITH_GPU}" = "true" ]]; then
     TF_CONFIGS+=( --config=cuda )
 fi
+TF_CONFIGS+=( --jobs ${THREAD_CNT} )
+
+# compile
 echo "[INFO] Build TensorFlow with configs: ${TF_CONFIGS[*]}"
 bazel build "${TF_CONFIGS[@]}" //tensorflow/tools/pip_package:build_pip_package || exit
 bazel-bin/tensorflow/tools/pip_package/build_pip_package "${TENSORFLOW_BUILD_DIR}" || exit
