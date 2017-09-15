@@ -8,11 +8,17 @@
 TENSORFLOW_BUILD_DIR="/tmp/tensorflow_pkg"
 PIP_EXECUTABLE="pip3"
 PIP_PACKAGE_NAME="tensorflow"
+PIP_DEPS=( numpy six wheel )
 
-# some constants
-CURRENT_DIR="$(pwd)"
+# do not modify these
+BUILD_WITH_GPU=true
+TF_CONFIGS=( --config=opt )
+
+# auto generated constants
+CURRENT_DIR="$( pwd )"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_DIR=$(readlink -m "${SCRIPT_DIR:?}/..")
+PROJECT_DIR=$( readlink -m "${SCRIPT_DIR:?}/.." )
+PIP_PACKAGE_LIST=$( ${PIP_EXECUTABLE} list --format=legacy )
 
 # debug
 cat << EOF
@@ -31,16 +37,43 @@ cd "${PROJECT_DIR}" || exit
 # Otherwise, the value of parameter is substituted.
 rm -f ${TENSORFLOW_BUILD_DIR:?}/*.whl
 
-# build
-bazel build --config=opt --config=cuda //tensorflow/tools/pip_package:build_pip_package || exit
-bazel-bin/tensorflow/tools/pip_package/build_pip_package ${TENSORFLOW_BUILD_DIR} || exit
+echo ""
+echo "# config starts"
+echo ""
 
-# remove previously installed TensorFlow
-if ( ${PIP_EXECUTABLE} list --format=legacy | grep ${PIP_PACKAGE_NAME} >/dev/null ); then
-    sudo -H ${PIP_EXECUTABLE} uninstall -y ${PIP_PACKAGE_NAME}
+# build with GPU?
+read -rp "Build TensorFlow with GPU support? [Y/n] " answer
+if [ "${answer,,}" = "n" ]; then
+    BUILD_WITH_GPU=false
 fi
 
-# install
+echo ""
+echo "# config ends"
+echo ""
+
+# install pip dependencies
+for pip_dep in ${PIP_DEPS[*]}; do
+    pip_package_found=$( echo "${PIP_PACKAGE_LIST}" | grep "${pip_dep} " )
+    if [[ -z $pip_package_found ]]; then
+        yes | sudo -H ${PIP_EXECUTABLE} install "${pip_dep}"
+    fi
+done
+
+# build
+if [ "${BUILD_WITH_GPU}" = "true" ]; then
+    TF_CONFIGS+=( --config=cuda )
+fi
+echo "[INFO] Build TensorFlow with configs: ${TF_CONFIGS[*]}"
+bazel build "${TF_CONFIGS[@]}" //tensorflow/tools/pip_package:build_pip_package || exit
+bazel-bin/tensorflow/tools/pip_package/build_pip_package "${TENSORFLOW_BUILD_DIR}" || exit
+
+# remove previously installed TensorFlow
+pip_package_found=$( echo "${PIP_PACKAGE_LIST}" | grep "${PIP_PACKAGE_NAME} " )
+if [[ -n $pip_package_found ]]; then
+    yes | sudo -H ${PIP_EXECUTABLE} uninstall "${PIP_PACKAGE_NAME}"
+fi
+
+# install TensorFlow
 sudo -H ${PIP_EXECUTABLE} install ${TENSORFLOW_BUILD_DIR}/*.whl || exit
 
 # go back to current dir
