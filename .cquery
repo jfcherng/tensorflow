@@ -1,0 +1,9 @@
+# Driver
+clang++
+
+# Language
+-xc++
+-std=c++11
+
+# Includes
+-I/home/jfcherng/Desktop/repo/tensorflow
